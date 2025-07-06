@@ -22,7 +22,21 @@ config = {
 	'train_group': '2',
 
 	# API Key for WMATA
-	'metro_api_key': '<Your WMATA API Key>',
+	# Note: You can get a free API key from https://developer.wmata.com/
+    'metro_api_key': '<Your WMATA API Key>',
+    
+	#########################
+	#   Bus Configuration   #
+	#########################
+	
+	#Bus Stop IDs
+    # Note: You can have more than one bus stop ID, which can be found on the WMATA website.
+    'bus_stop_id': '1001344',
+    
+	"bus_direction_num": '0', # Direction number for the bus stop, usually 0 or 1
+	#Color for Bus Lines
+	"Bus Color": 0xADD8E6,
+    
 
 	#########################
 	# Other Values You      #
@@ -32,6 +46,9 @@ config = {
 	'metro_api_url': 'https://api.wmata.com/StationPrediction.svc/json/GetPrediction/',
 	'metro_api_retries': 2,
 	'refresh_interval': 5, # 5 seconds is a good middle ground for updates, as the processor takes its sweet ol time
+    
+	'bus_api_url': 'http://api.wmata.com/NextBusService.svc/json/jPredictions?',
+	'bus_api_retries': 2,
 
 	# Display Settings
 	'matrix_width': 64,
