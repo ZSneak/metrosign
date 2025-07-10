@@ -36,7 +36,7 @@ class BusApi:
         while retry_attempt <= config['metro_api_retries']:
             try:
                 # Use f-string for cleaner URL construction.
-                api_url = f"{config['metro_api_url']}{stop_id}"
+                api_url = f"{config['bus_api_url']}{stop_id}"
                 headers = {'api_key': config['metro_api_key']}
 
                 # Fetch data from the network and parse as JSON.

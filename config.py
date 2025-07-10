@@ -1,4 +1,20 @@
 from adafruit_bitmap_font import bitmap_font # type: ignore
+import json
+''' Load WiFi and API key from a separate txt file
+# This file should contain the following structure:
+{
+    "ssid": "<your_wifi_ssid>",
+    "password": "<your_wifi_password>",
+    "api_key": "<your_api_key>"
+}
+In a seperate file named wifiandapikey.txt
+Make sure to replace the placeholders with your actual WiFi SSID, password, and API key.
+'''
+with open('wifiandapikey.txt', 'r') as f:
+	data = json.load(f)
+	api_key = data['api_key']
+	ssid = data['ssid']
+	password = data['password']
 
 config = {
 	#########################
@@ -6,24 +22,28 @@ config = {
 	#########################
 
 	# WIFI Network SSID
-	'wifi_ssid': '<Your 2.4ghz WiFi SSID>',
+	'wifi_ssid': ssid,
 
 	# WIFI Password
-	'wifi_password': '<Your WiFi Password>',
+	'wifi_password': password,
 
 	#########################
 	# Metro Configuration   #
 	#########################
 
 	# Metro Station Code
-	'metro_station_code': 'D02',
+	'metro_station_code': 'E01',
 
 	# Metro Train Group
-	'train_group': '2',
+	# Note: You can allow all by putting '*' here
+	'train_group': '1',
 
 	# API Key for WMATA
 	# Note: You can get a free API key from https://developer.wmata.com/
-    'metro_api_key': '<Your WMATA API Key>',
+    'metro_api_key': api_key,
+
+	'yellow_line_change_destination_MVSQ': True, # When true the yellow line destination will be changed from no passenger at mount vernon square to text below. Color will be changed to yellow.
+	"yellow_line_change_destination_text": 'Mt Vern', # Text to change the yellow line destination to when the above is true.
     
 	#########################
 	#   Bus Configuration   #
@@ -59,6 +79,7 @@ config = {
 	'character_height': 7,
 	'text_padding': 1,
 	'text_color': 0xFF7500,
+    'text_color_8_car_train': 0x00FF00, # Green color for 8 car trains 
 
 	'loading_destination_text': 'Loading',
 	'loading_min_text': '---',

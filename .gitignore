@@ -2,3 +2,6 @@ __pycache__/
 .vscode/
 lib/
 preeditcode/
+
+.gitignore
+wifiandapikey.txt

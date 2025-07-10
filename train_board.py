@@ -1,7 +1,7 @@
-import displayio # type: ignore
-from adafruit_display_shapes.rect import Rect # type: ignore
-from adafruit_display_text.label import Label # type: ignore
-from adafruit_matrixportal.matrix import Matrix # type: ignore
+import displayio
+from adafruit_display_shapes.rect import Rect
+from adafruit_display_text.label import Label
+from adafruit_matrixportal.matrix import Matrix
 
 from config import config
 
@@ -63,7 +63,8 @@ class TrainBoard:
                 self.trains[i].update(
                     train_info.get('line_color', config['loading_line_color']),
                     train_info.get('destination', config['loading_destination_text']),
-                    train_info.get('arrival', config['loading_min_text'])
+                    train_info.get('arrival', config['loading_min_text']),
+                    train_info.get('car', '-') # Default to '-' if 'car' is not provided
                 )
             else:
                 # If no data for this slot, hide the train.
@@ -120,6 +121,17 @@ class Train:
         """Sets the fill color of the train line rectangle."""
         self.line_rect.fill = line_color
 
+    def set_text_color(self, car: str):
+        """
+        Sets the text color based on the car number.
+        If car is '-', it uses the default text color.
+        Otherwise, it uses the car color from the config.
+        """ 
+        if (car == 8) or car == '8':
+            self.min_label.color = config['text_color_8_car_train']
+        else:
+            self.min_label.color = config['text_color']
+
     def set_destination(self, destination: str):
         """Sets the destination text, truncating if too long."""
         self.destination_label.text = destination[:config['destination_max_characters']]
@@ -129,9 +141,13 @@ class Train:
         Sets the arrival time, ensuring it's a string and right-justified.
         """
         # Convert to string and right-justify with spaces for consistent alignment.
-        self.min_label.text = str(minutes).rjust(config['min_label_characters'])
+        min_chars = int(config['min_label_characters'])
+        min_str = str(minutes)
+        if len(min_str) < min_chars:
+            min_str = ' ' * (min_chars - len(min_str)) + min_str
+        self.min_label.text = min_str
 
-    def update(self, line_color: int, destination: str, minutes: str):
+    def update(self, line_color: int, destination: str, minutes: str, car: str = '-'):
         """
         Updates all display elements for this train entry.
         """
@@ -139,3 +155,4 @@ class Train:
         self.set_line_color(line_color)
         self.set_destination(destination)
         self.set_arrival_time(minutes)
+        self.set_text_color(car)

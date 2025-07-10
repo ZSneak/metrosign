@@ -51,7 +51,7 @@ class MetroApi:
                 # Fetch data from the network and parse as JSON.
                 train_data = _network.fetch(api_url, headers=headers).json()
 
-                print('Received response from WMATA api...')
+                print(f'Received response from WMATA api: {train_data}')
 
                 # Use a list comprehension for efficient filtering and mapping.
                 # .get() is used to safely access dictionary keys, providing a default empty list
@@ -59,8 +59,12 @@ class MetroApi:
                 normalized_results = [
                     MetroApi._normalize_train_response(train)
                     for train in train_data.get('Trains', [])
-                    if train.get('Group') == group # Safely check 'Group' key.
+                    if group == '*' or train.get('Group') == group # Safely check 'Group' key, and pass all if group is "*"
                 ]
+                
+                #Todo: sort the results so that yellow line trains work normally when the yellow line change destination is enabled.
+                #Sort by arrival time, treating 'BRD' as the highest priority
+
                 return normalized_results
             except RuntimeError as e:
                 # Catch specific network-related errors.
@@ -80,22 +84,35 @@ class MetroApi:
         line = train.get('Line', '')
         destination = train.get('Destination', '')
         arrival = train.get('Min', '')
+        car = train.get('Car', '')
+        locationCode = train.get('LocationCode', '')
 
         # Check if the destination needs normalization using the predefined set.
         if destination in MetroApi._DESTINATION_NORMALIZATIONS:
             destination = 'No Psngr'
+            if config['yellow_line_change_destination_MVSQ'] and locationCode == 'E01':  # E01 is Mount Vernon Square
+                destination = config['yellow_line_change_destination_text']
+                arrival = 'BRD' if arrival == '---' else arrival
+        
+        
+        if car == None:
+            car = '-'
 
         return {
-            'line_color': MetroApi._get_line_color(line),
+            'line_color': MetroApi._get_line_color(line, destination),
             'destination': destination,
-            'arrival': arrival
+            'arrival': arrival,
+            'car': car
         }
     
     @staticmethod
-    def _get_line_color(line: str) -> int:
+    def _get_line_color(line: str, destination: str) -> int:
         """
         Returns the hexadecimal color for a given Metro line code.
         Uses a dictionary lookup for efficiency and readability.
         """
+        if destination == config['yellow_line_change_destination_text']:
+            # If the destination is the special case, return yellow color.
+            return MetroApi._LINE_COLORS.get('YL', MetroApi._DEFAULT_COLOR)
         # Use .get() with a default value to handle lines not explicitly defined.
         return MetroApi._LINE_COLORS.get(line, MetroApi._DEFAULT_COLOR)
